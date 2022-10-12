@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .hidden{
+            display: none;
+        }
+    </style>
+    
+</head>
+<body>
+   
+    <div>
+        <h1>START A SCHOOL</h1>
+        <p class="hidden" id="error">Something's amiss</p>
+        <form action="/school/create-school" id="school-form" method="post">
+            <label for="name">NAME</label> <input id="name" type="text"><br><br>
+            <label for="location">LOCATION</label><input id="location" type="text"><br><br>
+            <label for="telephone">CONTACT</label><input id="telephone" type="text"><br><br>
+            <label for="level">LEVEL</label>
+            <select name="level" id="level">
+                <option value="primary">Primary</option>
+                <option value="secondary">Secondary</option>
+                <option value="tertiary">Tertiary</option>
+            </select><br><br>
+            <input type="submit" value="Create">
+        
+        </form>
+    </div>
+    <div>
+        <ol id="schools">
+            {% for s in school %}
+            <li>{{s.name, s.location}}</li>
+            {% endfor %}
+        </ol>
+    </div>
+    <script>
+        document.getElementById('school-form').onsubmit = function(e){
+            e.preventDefault();
+            fetch('/school/create-school',{
+                method: 'POST',
+                body: JSON.stringify({
+                    'name':document.getElementById('name').value,
+                    'location':document.getElementById('location').value,
+                    'telephone':document.getElementById('telephone').value,
+                    'level':document.getElementById('level').options[document.getElementById('level').selectedIndex].text
+                }),
+                headers:{'Content-Type':'application/json'}
+            })
+            .then(function(response){
+                return response.json();
+            })
+            .then(function(jsonresponse){
+                console.log(jsonresponse);
+                const listItem = document.createElement('LI');
+                listItem.innerHTML = jsonresponse['level'];
+                document.getElementById('schools').appendChild(listItem);
+                document.getElementById('error').className = 'hidden';
+            })
+            .catch(function(){
+                document.getElementById('error').className = '';
+            })
+        }
+
+    </script>
+</body>
+</html>
